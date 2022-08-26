@@ -1,0 +1,21 @@
+# eval_linear on Windows, 3 Epochs
+####################################
+python -m torch.distributed.launch --nproc_per_node=1 eval_linear.py --epochs 2 --num_classes 3  --data_path "C:\path\to\3D-Front-dataset" --dist_url file:///c:/path/to/some_file
+
+# eval_linear on Linux
+####################################
+python -m torch.distributed.launch --nproc_per_node=1 eval_linear.py --epochs 2 --num_classes 3  --data_path \path\to\3D-Front-dataset 
+
+
+# eval_semisup on Windows, 3 Epochs
+####################################
+python -m torch.distributed.launch --nproc_per_node=1 eval_semisup.py --epochs 2 --num_classes 3 --data_path "C:\path\to\3D-Front-dataset" --dist_url file:///c:/path/to/some_file
+
+# eval_semisup on linux, 3 Epochs
+####################################
+python -m torch.distributed.launch --nproc_per_node=1 eval_semisup.py --epochs 2 --num_classes 3 --data_path \path\to\3D-Front-dataset
+
+
+# resnet50_baseline, 3 Epochs
+####################################
+python resnet50_baseline.py --num_classes 3 --epochs 2 --data_path "C:\Users\tomer\Datasets" 

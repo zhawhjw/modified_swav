@@ -1,0 +1,11 @@
+apex==0.1
+numpy==1.19.5
+pandas==1.2.1
+Pillow==8.1.0
+python-dateutil==2.8.1
+pytz==2020.5
+six==1.15.0
+torch==1.7.1+cu110
+torchaudio==0.7.2
+torchvision==0.8.2+cu110
+typing-extensions==3.7.4.3

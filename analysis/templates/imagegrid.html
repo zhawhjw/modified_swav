@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="{{ url_for('static', filename='jquery3_1_1.min.js') }}"></script>
+
+  <meta charset="utf-8" />
+</head>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial;
+}
+
+.header {
+  text-align: center;
+  padding: 32px;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+}
+
+.column img {
+  margin-top: 12px;
+}
+
+.column img:hover {padding:10px;}
+
+.active_img{border: solid 6px red;}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.columnone {
+  float: left;
+  width: 50%;
+  border: 1px solid;
+  border-color: linear-gradient(#f9f047, #0fd850);;
+}
+
+/* Clear floats after the columns */
+.rowone:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Slider stuff */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Container holding the image and the text */
+.container {
+  position: relative;
+  text-align: center;
+  color: black;
+}
+
+/* Bottom left text */
+.bottom-left {
+  position: relative;
+  bottom: 8px;
+  left: 16px;
+}
+
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+
+</style>
+<body>
+
+
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Image Grid</h1>
+  </div>
+
+  <div class="rowone">
+    <div class="columnone">
+      <label class="switch">
+        <input type="checkbox" id="leftslider" onchange='leftSliderChanged()'>
+        <span class="slider round"></span>
+      </label>
+      <select id="category" name="category" size="1" onchange='categoryChanged()'>
+    	<option value="none" selected="none">----</option>
+    	</select>
+
+    <!-- Photo Grid -->
+    <div class="row">
+      <div class="column" id="left1">
+      <img src="https://www.w3schools.com/w3images/underwater.jpg" style="width:100%">
+      </div>
+      <div class="column" id="left2">
+      <img src="https://www.w3schools.com/w3images/nature.jpg" style="width:100%">
+      </div>
+    </div>
+  </div>
+
+    <div class="columnone">
+      <select id="suggestions" name="suggestions" size="1" onchange='suggestionChanged()'>
+    	<option value="none" selected="none">----</option>
+    	</select>
+
+
+    <!-- Photo Grid -->
+    <div class="row" >
+      <div class="column" id="right1">
+      <img src="https://www.w3schools.com/w3images/underwater.jpg" style="width:100%">
+      <img src="https://www.w3schools.com/w3images/ocean.jpg" style="width:100%">
+
+      </div>
+      <div class="column" id="right2">
+          <img src="https://www.w3schools.com/w3images/wedding.jpg" style="width:100%">
+      </div>
+
+    </div>
+  </div>
+  </div>
+</body>
+<script id="rendered-js">
+// Taken from here
+// https://stackoverflow.com/questions/24692655/how-to-highlight-an-image-after-selection-using-css-or-jquery
+
+
+
+var model_info = {{ model_info |tojson }};
+console.log('model_info', model_info)
+
+var data = {{ data|safe }};
+console.log('data',data);
+
+var selected_products = [];
+keys = [];
+Object.keys(data).forEach(function(key) {
+	keys.push(key);
+});
+keys.sort()
+
+console.log(keys)
+updateImages(data, keys)
+
+
+function cleanColumn(column)
+{
+  for (var i = column.children.length - 1; i >=0 ;i--)
+  {
+     var elem = column.children[i];
+     column.removeChild(elem);
+  }
+}
+
+
+
+
+
+
+function createImageWithoutToggle(column, image_url, leftSliderChecked)
+{
+  var div = document.createElement("div");
+  div.setAttribute("class", "container");
+  var elem = document.createElement("img");
+  elem.setAttribute("id", image_url);
+  elem.setAttribute("style",  "width:100%" );
+  elem.setAttribute("src",  "{{ url_for('static', filename='/') }}" + image_url );
+  div.appendChild(elem);
+  var text = document.createElement("div");
+  text.setAttribute("class", "bottom-left");
+  var furniture_info = model_info[image_url];
+
+  text.innerHTML = furniture_info.style; 
+  div.appendChild(text);
+  column.appendChild(div);
+  console.log(furniture_info)
+
+}
+
+function updateSuggestions(query_img)
+{
+  console.log("updateing suggestions",category);
+
+  var rightres1 = document.getElementById("right1");
+  cleanColumn(rightres1);
+  var rightres2 = document.getElementById("right2");
+  cleanColumn(rightres2);
+
+  var response = data[query_img];
+  var active_col = rightres1;
+  for(var i=0; i < response.length; i++)
+  {
+    createImageWithoutToggle(active_col, response[i],leftslider.checked);
+    if(rightres1.clientHeight > rightres2.clientHeight)
+    {
+      active_col = rightres2;
+    }
+    else
+    {
+      active_col = rightres1;
+    }
+  }
+}
+
+
+function toggleImageClass(curImg)
+{
+    curImg.class = "active_img";
+    curImg.style.border="solid 6px red";
+    console.log(curImg.id);
+    //selected_products.push(curImg.id);
+    updateSuggestions(curImg.id);
+}
+
+
+function createImage(column, image_url)
+{
+  var elem = document.createElement("img");
+  elem.setAttribute("onclick",  "toggleImageClass(this)" );
+  elem.setAttribute("id", image_url);
+  elem.setAttribute("style",  "width:100%" );
+  //var alturl = "{{ url_for('static', filename='babylonrenders/') }}" +
+  //              product.skuskuoption.split(":")[0] + ".png";
+
+  //elem.setAttribute("alt", alturl );
+  // 
+  elem.setAttribute("src",  "{{ url_for('static', filename='/') }}" + image_url );
+  //elem.setAttribute("title",  product.skuskuoption.split(":")[0]);
+  //elem.setAttribute("title",  product.skuskuoption);
+  column.appendChild(elem);
+}
+
+function cleanColumn(column)
+{
+  for (var i = column.children.length - 1; i >=0 ;i--)
+  {
+     var elem = column.children[i];
+     column.removeChild(elem);
+  }
+}
+
+function updateImages(data, keys)
+{
+
+  var dropleft = document.getElementById("left1");
+  cleanColumn(dropleft);
+  var dropleft2 = document.getElementById("left2");
+  cleanColumn(dropleft2);
+  var col1_height = 0;
+  var col2_height = 0;
+  var active_col = dropleft;
+  for(var i=0; i < keys.length; i++)
+  {
+    createImage(active_col, keys[i]);
+    if(dropleft.clientHeight > dropleft2.clientHeight)
+    {
+      active_col = dropleft2;
+    }
+    else
+    {
+      active_col = dropleft;
+    }
+  }
+  selected_products = []; // clear selected products
+}
+
+
+
+/* 
+var dropdownmenu = document.getElementById( 'category' );
+addCategoriesToSelectButton(dropdownmenu, keys);
+dropdownmenu = document.getElementById( 'suggestions' );
+addCategoriesToSelectButton(dropdownmenu, keys);
+
+
+
+$(function () {
+    // Handler for .ready() called.
+    console.log("activated1");
+    $("img").on("click",function(){
+        event.preventDefault();
+        console.log("activated2");
+        $(this).toggleClass("active_img");
+    })
+});
+
+function addCategoriesToSelectButton(button, categories)
+{
+  for(var i=0; i<categories.length; i++)
+  {
+    var key = categories[i];
+    var option = document.createElement("option");
+    option.text = key;
+    option.value = key;
+    button.appendChild(option);
+  }
+}
+
+
+
+function toggleImageClass(curImg)
+{
+  console.log(curImg.height);
+  if(curImg.class == "active_img")
+  {
+    curImg.style.border="";
+    curImg.class = "";
+    for(var i=0; i<selected_products.length;i++)
+    {
+      if(selected_products[i]==curImg.id)
+      {
+        selected_products.splice(i, 1);
+        break;
+      }
+    }
+  }
+  else
+  {
+    curImg.class = "active_img";
+    curImg.style.border="solid 6px red";
+    selected_products.push(curImg.id);
+  }
+  console.log(selected_products);
+  updateSuggestions();
+}
+
+
+function createImageWithoutToggle(column, product, leftSliderChecked)
+{
+  var elem = document.createElement("img");
+  elem.setAttribute("id", product.skuskuoption);
+  elem.setAttribute("style",  "width:100%" );
+  var alturl = "{{ url_for('static', filename='babylonrenders/') }}" +
+                product.skuskuoption.split(":")[0] + ".png";
+  if(leftSliderChecked)
+  {
+    elem.setAttribute("alt", product.ireid );
+    elem.setAttribute("src", alturl );
+  }
+  else
+  {
+    elem.setAttribute("alt", alturl );
+    elem.setAttribute("src",product.ireid);
+  }
+  //elem.setAttribute("title",  product.skuskuoption.split(":")[0]);
+  elem.setAttribute("title",  product.skuskuoption);
+  column.appendChild(elem);
+}
+
+function createImage(column, product, leftSliderChecked)
+{
+  var elem = document.createElement("img");
+  elem.setAttribute("onclick",  "toggleImageClass(this)" );
+  elem.setAttribute("id", product.skuskuoption);
+  elem.setAttribute("style",  "width:100%" );
+  var alturl = "{{ url_for('static', filename='babylonrenders/') }}" +
+                product.skuskuoption.split(":")[0] + ".png";
+  if(leftSliderChecked)
+  {
+    elem.setAttribute("alt", product.ireid );
+    elem.setAttribute("src", alturl );
+  }
+  else
+  {
+    elem.setAttribute("alt", alturl );
+    elem.setAttribute("src",product.ireid);
+  }
+  //elem.setAttribute("title",  product.skuskuoption.split(":")[0]);
+  elem.setAttribute("title",  product.skuskuoption);
+  column.appendChild(elem);
+}
+
+function cleanColumn(column)
+{
+  for (var i = column.children.length - 1; i >=0 ;i--)
+  {
+     var elem = column.children[i];
+     column.removeChild(elem);
+  }
+}
+
+function categoryChanged()
+{
+  var category = String(event.target.value);
+  var category_products = data[category];
+  var dropleft = document.getElementById("left1");
+  cleanColumn(dropleft);
+  var dropleft2 = document.getElementById("left2");
+  cleanColumn(dropleft2);
+  var col1_height = 0;
+  var col2_height = 0;
+  var active_col = dropleft;
+  var leftslider = document.getElementById( 'leftslider' );
+  for(var i=0; i < category_products.length; i++)
+  {
+    createImage(active_col, category_products[i],leftslider.checked);
+    if(dropleft.clientHeight > dropleft2.clientHeight)
+    {
+      active_col = dropleft2;
+    }
+    else
+    {
+      active_col = dropleft;
+    }
+  }
+  selected_products = []; // clear selected products
+}
+
+function updateSuggestionsDisplay(category)
+{
+  console.log("updateing suggestions",category);
+
+  var rightres1 = document.getElementById("right1");
+  cleanColumn(rightres1);
+  var rightres2 = document.getElementById("right2");
+  cleanColumn(rightres2);
+
+  $.ajax({
+    url: "/suggestions",
+    type: "post",
+    data: {selected_category: category, reference: selected_products},
+    //data: {selected: category},
+    success: function(response) {
+      if(response)
+      {
+        console.log(response);
+
+        var active_col = rightres1;
+        for(var i=0; i < response.length; i++)
+        {
+          createImageWithoutToggle(active_col, response[i],leftslider.checked);
+          if(rightres1.clientHeight > rightres2.clientHeight)
+          {
+            active_col = rightres2;
+          }
+          else
+          {
+            active_col = rightres1;
+          }
+        }
+
+      }
+    },
+    error: function(xhr) {
+      console.log("fail");
+    }
+  });
+
+}
+
+function leftSliderChanged()
+{
+  var swp="";
+  if(event.target.checked)
+  {
+    console.log("On");
+    var imgs = document.getElementsByTagName("img");
+    for (var i = 0; i < imgs.length; i++)
+    {
+      swp = imgs[i].alt;
+      imgs[i].alt =  imgs[i].src;
+      imgs[i].src = swp;
+    }
+  }
+  else
+  {
+    console.log("Off");
+    var imgs = document.getElementsByTagName("img");
+    for (var i = 0; i < imgs.length; i++)
+    {
+      swp = imgs[i].alt;
+      imgs[i].alt =  imgs[i].src;
+      imgs[i].src = swp;
+    }
+  }
+}
+
+function updateSuggestions()
+{
+  var categeory = document.getElementById( 'suggestions' );
+  updateSuggestionsDisplay(categeory.options[categeory.selectedIndex].value);
+}
+
+function suggestionChanged()
+{
+  var category = String(event.target.value);
+  if(selected_products.length > 0)
+  {
+    updateSuggestionsDisplay(category);
+  }
+}
+*/
+
+</script>
+</html>

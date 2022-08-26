@@ -1,0 +1,12 @@
+checkpoint_eval_linear.pth.tar
+checkpoint_eval_semisup.pth.tar
+resnet50_checkpoint.pth.tar
+checkpoints/
+logging.csv
+logging_similar_images.csv
+params.pkl
+src/__pycache__/
+stats0.pkl
+train.log
+method*
+
