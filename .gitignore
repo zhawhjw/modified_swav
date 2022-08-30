@@ -9,4 +9,5 @@ src/__pycache__/
 stats0.pkl
 train.log
 method*
-
+somefile.txt
+__pycache__/

@@ -203,7 +203,7 @@ def method2_wrap():
     #### model parameters ###
     #########################
     parser.add_argument("--arch", default="resnet50", type=str, help="convnet architecture")
-    parser.add_argument("--pretrained", default="", type=str, help=pretrained_path)
+    parser.add_argument("--pretrained", default=pretrained_path, type=str, help=pretrained_path)
 
     #########################
     #### optim parameters ###
@@ -280,7 +280,9 @@ def method2_wrap():
                 # linear_main(args, logger, training_stats)
                 semisup_main(args, logger, training_stats)
 if __name__ == "__main__":
-    # 0.5_0.001_0.0001
+    # 0.5_0_0.1
+    # 0.25_0.0001_0.01
+    # 0.25_0.01_0.001
     extend_dict = {'MASTER_ADDR': '127.0.0.1', 'MASTER_PORT': '29500', 'WORLD_SIZE': '1', 'RANK': '0', 'LOCAL_RANK': '0'}
     os.environ.update(extend_dict)
     pprint(os.environ)
