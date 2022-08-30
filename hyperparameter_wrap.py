@@ -18,6 +18,7 @@ import pandas as pd
 
 from modified_eval_linear import main as linear_main
 from modified_eval_semisup import main as semisup_main
+
 # python
 # -m torch.distributed.launch
 # --nproc_per_node = 1
@@ -30,18 +31,20 @@ from modified_eval_semisup import main as semisup_main
 # --lr 0.001
 # --wd 0.002
 
-momentum_list = [0.9, 0.5, 0.25, 0]
-decay_list = [1e-4, 1e-3, 1e-2, 1e-1, 0]
+# momentum_list = [0.9, 0.5, 0.25, 0]
+momentum_list = [0, 0.25, 0.5, 0.9]
+
+decay_list = [0, 1e-1, 1e-2, 1e-3, 1e-4]
 #
 lr_list = [1e-4, 1e-3, 1e-2, 1e-1]
 
-main_data_path = "D:/Data/3D-FUTURE-model/"
-pretrained_path = "checkpoints/swav_800ep_pretrain.pth.tar"
-windows_fakefile_path = "file:///D:/Github/styleestimation-master/somefile.txt"
-dump_root_path = "." + "/"
+main_data_path = "/content/drive/MyDrive/data/swav/2D_images/"
+pretrained_path = "/content/drive/MyDrive/data/swav/checkpoints/swav_800ep_pretrain.pth.tar"
+windows_fakefile_path = "file:////content/drive/MyDrive/data/swav/styleestimation-master/somefile.txt"
+dump_root_path = "/content/drive/MyDrive/data/swav/dumped_path/"
+
 
 def method1_wrap():
-
     root_dir = "method2"
 
     if not os.path.exists(root_dir):
@@ -52,7 +55,6 @@ def method1_wrap():
     parser = argparse.ArgumentParser(description="Evaluate models: Linear classification on ImageNet")
 
     global checkpoint_path, best_checkpoint_path
-
 
     checkpoint_path = "checkpoint_eval_linear.pth.tar"
     best_checkpoint_path = "best_checkpoint_eval_linear.pth.tar"
@@ -128,8 +130,6 @@ def method1_wrap():
     # print(args.gpu_to_work_on)
     init_distributed_mode(args)
 
-
-
     for momentum in momentum_list:
 
         args.momentum = momentum
@@ -167,12 +167,11 @@ def method1_wrap():
                 # linear_main(args, logger, training_stats)
                 semisup_main(args, logger, training_stats)
 
+
 def method2_wrap():
-
-
     root_dir = dump_root_path + "method2"
 
-    if not os.path.exists( root_dir):
+    if not os.path.exists(root_dir):
         os.mkdir(root_dir)
 
     directory = str(momentum_list[0]) + "_" + str(decay_list[0]) + "_" + str(lr_list[0])
@@ -281,12 +280,15 @@ def method2_wrap():
 
                 # linear_main(args, logger, training_stats)
                 semisup_main(args, logger, training_stats)
+
+
 if __name__ == "__main__":
     # 0.5_0_0.1
     # 0.25_0.0001_0.01
     # 0.25_0.01_0.001
     # 0_0.001_0.1
-    extend_dict = {'MASTER_ADDR': '127.0.0.1', 'MASTER_PORT': '29500', 'WORLD_SIZE': '1', 'RANK': '0', 'LOCAL_RANK': '0'}
+    extend_dict = {'MASTER_ADDR': '127.0.0.1', 'MASTER_PORT': '29500', 'WORLD_SIZE': '1', 'RANK': '0',
+                   'LOCAL_RANK': '0'}
     os.environ.update(extend_dict)
     pprint(os.environ)
     # method1_wrap()
