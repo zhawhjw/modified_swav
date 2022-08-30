@@ -37,6 +37,8 @@ lr_list = [1e-4, 1e-3, 1e-2, 1e-1]
 
 main_data_path = "D:/Data/3D-FUTURE-model/"
 pretrained_path = "checkpoints/swav_800ep_pretrain.pth.tar"
+windows_fakefile_path = "file:///D:/Github/styleestimation-master/somefile.txt"
+dump_root_path = "." + "/"
 
 def method1_wrap():
 
@@ -168,9 +170,9 @@ def method1_wrap():
 def method2_wrap():
 
 
-    root_dir = "method2"
+    root_dir = dump_root_path + "method2"
 
-    if not os.path.exists(root_dir):
+    if not os.path.exists( root_dir):
         os.mkdir(root_dir)
 
     directory = str(momentum_list[0]) + "_" + str(decay_list[0]) + "_" + str(lr_list[0])
@@ -223,7 +225,7 @@ def method2_wrap():
     #########################
     #### dist parameters ###
     #########################
-    parser.add_argument("--dist_url", default="file:///D:/Github/styleestimation-master/somefile.txt", type=str,
+    parser.add_argument("--dist_url", default=windows_fakefile_path, type=str,
                         help="url used to set up distributed training")
     parser.add_argument("--world_size", default=-1, type=int, help="""
                         number of processes: it is set automatically and
@@ -283,6 +285,7 @@ if __name__ == "__main__":
     # 0.5_0_0.1
     # 0.25_0.0001_0.01
     # 0.25_0.01_0.001
+    # 0_0.001_0.1
     extend_dict = {'MASTER_ADDR': '127.0.0.1', 'MASTER_PORT': '29500', 'WORLD_SIZE': '1', 'RANK': '0', 'LOCAL_RANK': '0'}
     os.environ.update(extend_dict)
     pprint(os.environ)
