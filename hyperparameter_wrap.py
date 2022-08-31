@@ -34,7 +34,7 @@ from modified_eval_semisup import main as semisup_main
 # momentum_list = [0.9, 0.5, 0.25, 0]
 momentum_list = [0, 0.25, 0.5, 0.9]
 
-decay_list = [0, 1e-1, 1e-2, 1e-3, 1e-4]
+decay_list = [1e-4, 1e-3, 1e-2, 1e-1, 0]
 #
 lr_list = [1e-4, 1e-3, 1e-2, 1e-1]
 
@@ -45,7 +45,7 @@ dump_root_path = "/content/drive/MyDrive/data/swav/dumped_path/"
 
 
 def method1_wrap():
-    root_dir = "method2"
+    root_dir = dump_root_path + "method1"
 
     if not os.path.exists(root_dir):
         os.mkdir(root_dir)
@@ -107,7 +107,7 @@ def method1_wrap():
     #########################
     #### dist parameters ###
     #########################
-    parser.add_argument("--dist_url", default="./somefile", type=str,
+    parser.add_argument("--dist_url", default="env://", type=str,
                         help="url used to set up distributed training")
     parser.add_argument("--world_size", default=-1, type=int, help="""
                                         number of processes: it is set automatically and
@@ -164,8 +164,7 @@ def method1_wrap():
 
                 print("Current Setting: " + directory)
 
-                # linear_main(args, logger, training_stats)
-                semisup_main(args, logger, training_stats)
+                linear_main(args, logger, training_stats)
 
 
 def method2_wrap():
@@ -176,7 +175,7 @@ def method2_wrap():
 
     directory = str(momentum_list[0]) + "_" + str(decay_list[0]) + "_" + str(lr_list[0])
 
-    parser = argparse.ArgumentParser(description="Evaluate models: Linear classification on ImageNet")
+    parser = argparse.ArgumentParser(description="Evaluate models: Fine-tuning with 1% or 10% labels on ImageNet")
 
     global checkpoint_path, best_checkpoint_path
 
@@ -224,7 +223,7 @@ def method2_wrap():
     #########################
     #### dist parameters ###
     #########################
-    parser.add_argument("--dist_url", default=windows_fakefile_path, type=str,
+    parser.add_argument("--dist_url", default="env://", type=str,
                         help="url used to set up distributed training")
     parser.add_argument("--world_size", default=-1, type=int, help="""
                         number of processes: it is set automatically and
