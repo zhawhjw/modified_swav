@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-path = "method2/"
+path = "/content/drive/MyDrive/data/swav/dumped_path/method2/"
 
 if __name__ == "__main__":
 
