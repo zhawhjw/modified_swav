@@ -51,6 +51,8 @@ def method1_wrap():
 
     parser = argparse.ArgumentParser(description="Evaluate models: Linear classification on ImageNet")
 
+    assert False, "Invalid Name for method"
+
     global checkpoint_path, best_checkpoint_path
 
 

@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-path = "method2/"
+path = "method1/"
 
 if __name__ == "__main__":
 
