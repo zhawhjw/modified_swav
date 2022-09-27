@@ -20,6 +20,7 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from torch.autograd import Variable
+from torchsampler import ImbalancedDatasetSampler
 
 from src.utils import (
     bool_flag,
@@ -222,14 +223,25 @@ def main(a, logger, training_stats):
         transforms.ToTensor(),
         tr_normalize,
     ])
+
     sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
-        sampler=sampler,
+        sampler=ImbalancedDatasetSampler(train_dataset),
         batch_size=args.batch_size,
         num_workers=args.workers,
         pin_memory=True,
     )
+
+
+    # train_loader = torch.utils.data.DataLoader(
+    #     train_dataset,
+    #     sampler=sampler,
+    #     batch_size=args.batch_size,
+    #     num_workers=args.workers,
+    #     pin_memory=True,
+    # )
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
         batch_size=args.batch_size,

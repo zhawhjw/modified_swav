@@ -295,6 +295,16 @@ class ResNet(nn.Module):
         return x
 
     def forward_head(self, x):
+
+        # print(self.projection_head.parameters())
+        # print(self.prototypes.parameters())
+
+        # for name, param in self.projection_head.named_parameters():
+        #     if param.requires_grad:
+        #         print(name)
+        #         print(param.data)
+
+
         if self.projection_head is not None:
             x = self.projection_head(x)
 
@@ -303,6 +313,7 @@ class ResNet(nn.Module):
 
         if self.prototypes is not None:
             return x, self.prototypes(x)
+
         return x
 
     def forward(self, inputs):
