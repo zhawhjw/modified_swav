@@ -35,9 +35,20 @@ decay_list = [1e-2]
 #
 lr_list = [1e-1]
 
+
+model_list = []
+
+for root, dirs, files in os.walk("saved", topdown=True):
+
+    if dirs:
+        for d in dirs:
+            model_list.append(d)
+# print(model_list)
+
 main_data_path = "D:/Data/New-3D-Future-model/"
-# pretrained_path = "checkpoints/checkpoint.pth.tar"
-pretrained_path = "checkpoints/swav_800ep_pretrain.pth.tar"
+pretrained_root = "saved"
+pretrained_path = "checkpoint.pth.tar"
+# pretrained_path = "checkpoints/swav_800ep_pretrain.pth.tar"
 windows_fakefile_path = "file:///D:/Github/styleestimation-master/somefile.txt"
 dump_root_path = "." + "/"
 
@@ -45,7 +56,7 @@ dump_root_path = "." + "/"
 def method2_wrap():
 
 
-    root_dir = dump_root_path + "method2_0.7_1000_90_1000"
+    root_dir = dump_root_path + "method2"
 
     if not os.path.exists( root_dir):
         os.mkdir(root_dir)
@@ -120,42 +131,46 @@ def method2_wrap():
     # print(args.gpu_to_work_on)
     init_distributed_mode(args)
 
-    for momentum in momentum_list:
+    for m in model_list:
 
-        args.momentum = momentum
+        args.pretrained = pretrained_root + "/" + m + "/" + pretrained_path
 
-        for weight_decay in decay_list:
+        for momentum in momentum_list:
 
-            args.wd = weight_decay
+            args.momentum = momentum
 
-            for lr in lr_list:
+            for weight_decay in decay_list:
 
-                args.lr = lr
+                args.wd = weight_decay
 
-                directory = str(momentum) + "_" + str(weight_decay) + "_" + str(lr)
+                for lr in lr_list:
 
-                args.dump_path = root_dir + "/" + directory
-                args.results = root_dir + "/" + directory + "/" + "log.csv"
+                    args.lr = lr
 
-                if not os.path.exists(root_dir + "/" + directory):
-                    os.mkdir(root_dir + "/" + directory)
-                    # shutil.copy("params.pkl", root_dir + "/" + directory + "/" + "params.pkl")
-                else:
-                    log = pd.read_csv(root_dir + "/" + directory + "/" + "log.csv")
+                    directory = str(momentum) + "_" + str(weight_decay) + "_" + str(lr) + "/" + str(m)
 
-                    if len(log['epoch'].values) >= args.epochs - 1:
-                        print("Skip trained hyperparameter combination")
-                        continue
+                    args.dump_path = root_dir + "/" + directory
+                    args.results = root_dir + "/" + directory + "/" + "log.csv"
 
-                fix_random_seeds(args.seed)
-                logger, training_stats = initialize_exp(
-                    args, "epoch", "loss", "prec1", "prec3", "loss_val", "prec1_val", "prec3_val"
-                )
+                    if not os.path.exists(root_dir + "/" + directory):
+                        os.mkdir(root_dir + "/" + directory)
+                        # shutil.copy("params.pkl", root_dir + "/" + directory + "/" + "params.pkl")
+                    else:
+                        log = pd.read_csv(root_dir + "/" + directory + "/" + "log.csv")
 
-                print("Current Setting: " + directory)
+                        if len(log['epoch'].values) >= args.epochs - 1:
+                            print("Skip trained hyperparameter combination")
+                            continue
 
-                # linear_main(args, logger, training_stats)
-                semisup_main(args, logger, training_stats)
+                    fix_random_seeds(args.seed)
+                    logger, training_stats = initialize_exp(
+                        args, "epoch", "loss", "prec1", "prec3", "loss_val", "prec1_val", "prec3_val"
+                    )
+
+                    print("Current Setting: " + directory)
+
+                    # linear_main(args, logger, training_stats)
+                    semisup_main(args, logger, training_stats)
 if __name__ == "__main__":
     # 0.5_0_0.1
     # 0.25_0.0001_0.01

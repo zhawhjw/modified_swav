@@ -209,7 +209,8 @@ def main(a, logger, training_stats):
 
     val_dataset = ImageFolderWithPaths(os.path.join(args.data_path, "val"))
     tr_normalize = transforms.Normalize(
-        mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225]
+        # mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225]
+        mean=[0.8013, 0.7932, 0.7904], std=[0.2398, 0.2511, 0.2641]
     )
     train_dataset.transform = transforms.Compose([
         transforms.RandomResizedCrop(224),
@@ -233,7 +234,6 @@ def main(a, logger, training_stats):
         num_workers=args.workers,
         pin_memory=True,
     )
-
 
     # train_loader = torch.utils.data.DataLoader(
     #     train_dataset,
@@ -326,7 +326,7 @@ def main(a, logger, training_stats):
         logger.info("============ Starting epoch %i ... ============" % epoch)
 
         # set samplers
-        train_loader.sampler.set_epoch(epoch)
+        # train_loader.sampler.set_epoch(epoch)
 
         scores = train(model, optimizer, train_loader, epoch)
         scores_val = validate_network(val_loader, model)
@@ -532,7 +532,7 @@ def retrieval(val_loader, model):
     similar_images = dict()
     top1 = []
     topk = []
-    with open(args.dump_path + "/" +'eval_semisup_embeddings_image_paths.csv', 'w') as f:
+    with open(args.dump_path + "/" + 'eval_semisup_embeddings_image_paths.csv', 'w') as f:
         for idx1, embedding1 in enumerate(embeddings):
             current_distances = np.array([np.linalg.norm(embedding1 - embedding2) for embedding2 in embeddings])
             current_distances /= np.max(current_distances)  # so that distances are in the range 0-1
