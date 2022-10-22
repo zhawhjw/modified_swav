@@ -9,6 +9,7 @@ import argparse
 import os
 import time
 from logging import getLogger
+import logging
 import urllib
 
 import torch
@@ -39,7 +40,9 @@ import csv
 
 checkpoint_path = "checkpoint_eval_semisup.pth.tar"
 best_checkpoint_path = "best_checkpoint_eval_semisup.pth.tar"
+# logger = getLogger()
 logger = getLogger()
+logger.setLevel(logging.INFO)
 global_stats = {}
 
 # new script:
@@ -235,13 +238,13 @@ def main(a, logger, training_stats):
         pin_memory=True,
     )
 
-    # train_loader = torch.utils.data.DataLoader(
-    #     train_dataset,
-    #     sampler=sampler,
-    #     batch_size=args.batch_size,
-    #     num_workers=args.workers,
-    #     pin_memory=True,
-    # )
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
+        sampler=sampler,
+        batch_size=args.batch_size,
+        num_workers=args.workers,
+        pin_memory=True,
+    )
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
         batch_size=args.batch_size,
@@ -326,11 +329,11 @@ def main(a, logger, training_stats):
         logger.info("============ Starting epoch %i ... ============" % epoch)
 
         # set samplers
-        # train_loader.sampler.set_epoch(epoch)
+        train_loader.sampler.set_epoch(epoch)
 
         scores = train(model, optimizer, train_loader, epoch)
         scores_val = validate_network(val_loader, model)
-        similar_images, val_recall1, val_recallk = retrieval(val_loader, model)
+        # similar_images, val_recall1, val_recallk = retrieval(val_loader, model)
 
         best_acc_updated = scores_val[-1]
         scores_val = scores_val[:-1]
@@ -343,8 +346,10 @@ def main(a, logger, training_stats):
         stats_log["val_acc"] = "%.4f" % val_acc
         stats_log["train_loss"] = "%.4f" % train_loss
         stats_log["train_acc"] = "%.4f" % train_acc
-        stats_log["val_recall1"] = "%.4f" % float(val_recall1)
-        stats_log["val_recallk"] = "%.4f" % float(val_recallk)
+        # stats_log["val_recall1"] = "%.4f" % float(val_recall1)
+        # stats_log["val_recallk"] = "%.4f" % float(val_recallk)
+        stats_log["val_recall1"] = "None"
+        stats_log["val_recallk"] = "None"
 
         training_stats.update(scores + scores_val)
 
@@ -374,13 +379,13 @@ def main(a, logger, training_stats):
                 torch.save(save_dict, os.path.join(args.dump_path, best_checkpoint_path))
 
     # Save similar image paths into csv
-    save_retrieval_results_to_csv(similar_images, args.results[:-4] + "_similar_images.csv")
-    logger.info("Fine-tuning with {}% of labels completed.\n"
-                "Top-1 test accuracy: {acc1:.1f}\n"
-                "Top-1 recall: {recall1:.1f}\n"
-                "Top-{topk} recall: {recallk:.1f}\n".format(
-        args.labels_perc, acc1=best_acc[0],
-        recall1=val_recall1, topk=args.topk, recallk=val_recallk))
+    # save_retrieval_results_to_csv(similar_images, args.results[:-4] + "_similar_images.csv")
+    # logger.info("Fine-tuning with {}% of labels completed.\n"
+    #             "Top-1 test accuracy: {acc1:.1f}\n"
+    #             "Top-1 recall: {recall1:.1f}\n"
+    #             "Top-{topk} recall: {recallk:.1f}\n".format(
+    #     args.labels_perc, acc1=best_acc[0],
+    #     recall1=val_recall1, topk=args.topk, recallk=val_recallk))
 
 
 def train(model, optimizer, loader, epoch):

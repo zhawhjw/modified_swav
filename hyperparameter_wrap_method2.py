@@ -45,11 +45,13 @@ for root, dirs, files in os.walk("saved", topdown=True):
             model_list.append(d)
 # print(model_list)
 
-main_data_path = "D:/Data/New-3D-Future-model/"
-pretrained_root = "saved"
-pretrained_path = "checkpoint.pth.tar"
-# pretrained_path = "checkpoints/swav_800ep_pretrain.pth.tar"
-windows_fakefile_path = "file:///D:/Github/styleestimation-master/somefile.txt"
+# main_data_path = "/home/y/yz862/python38/3D-FUTURE-model/"
+main_data_path = "/home/y/yz862/data/3D-Future-Model-Renders_v2/"
+# pretrained_root = "saved"
+# pretrained_path = "checkpoint.pth.tar"
+pretrained_root = "."
+pretrained_path = "checkpoints/swav_800ep_pretrain.pth.tar"
+windows_fakefile_path = "env://"
 dump_root_path = "." + "/"
 
 
@@ -80,7 +82,7 @@ def method2_wrap():
     parser.add_argument("--seed", type=int, default=31, help="seed")
     parser.add_argument("--data_path", type=str, default=main_data_path,
                         help="path to imagenet")
-    parser.add_argument("--num_classes", type=int, default=13,
+    parser.add_argument("--num_classes", type=int, default=12,
                         help="number of classes in the dataset")
     parser.add_argument("--topk", type=int, default=3,
                         help="top K performance for retrieval")
@@ -98,7 +100,7 @@ def method2_wrap():
     #########################
     parser.add_argument("--epochs", default=150, type=int,
                         help="number of total epochs to run")
-    parser.add_argument("--batch_size", default=32, type=int,
+    parser.add_argument("--batch_size", default=128, type=int,
                         help="batch size per gpu, i.e. how many unique instances per gpu")
     parser.add_argument("--lr", default=0.0001, type=float, help="initial learning rate - trunk")
     parser.add_argument("--lr_last_layer", default=0.2, type=float, help="initial learning rate - head")
@@ -133,7 +135,8 @@ def method2_wrap():
 
     for m in model_list:
 
-        args.pretrained = pretrained_root + "/" + m + "/" + pretrained_path
+        # args.pretrained = pretrained_root + "/" + m + "/" + pretrained_path
+        args.pretrained = pretrained_root + "/"  + pretrained_path
 
         for momentum in momentum_list:
 
@@ -146,11 +149,10 @@ def method2_wrap():
                 for lr in lr_list:
 
                     args.lr = lr
-
+                    
+                    
                     directory = str(momentum) + "_" + str(weight_decay) + "_" + str(lr) + "/" + str(m)
 
-                    args.dump_path = root_dir + "/" + directory
-                    args.results = root_dir + "/" + directory + "/" + "log.csv"
 
                     if not os.path.exists(root_dir + "/" + directory):
                         os.mkdir(root_dir + "/" + directory)
@@ -161,6 +163,8 @@ def method2_wrap():
                         if len(log['epoch'].values) >= args.epochs - 1:
                             print("Skip trained hyperparameter combination")
                             continue
+                    args.dump_path = root_dir + "/" + directory
+                    args.results = root_dir + "/" + directory + "/" + "log.csv"
 
                     fix_random_seeds(args.seed)
                     logger, training_stats = initialize_exp(
@@ -181,5 +185,3 @@ if __name__ == "__main__":
     pprint(os.environ)
     # method1_wrap()
     method2_wrap()
-
-    # environ({'PATH': '/home/fantasticapple/Tool/anaconda3/envs/swav/bin:/home/fantasticapple/Tool/anaconda3/condabin:/home/fantasticapple/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/fantasticapple/.dotnet/tools:/home/fantasticapple/.local/share/JetBrains/Toolbox/scripts', 'LC_MEASUREMENT': 'en_US.UTF-8', 'XAUTHORITY': '/run/user/1000/gdm/Xauthority', 'INVOCATION_ID': 'cfe99ab5c6b544fda3d6d9e25b803467', 'XMODIFIERS': '@im=fcitx', 'LC_TELEPHONE': 'en_US.UTF-8', 'XDG_DATA_DIRS': '/usr/share/pop:/usr/share/gnome:/home/fantasticapple/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/', 'GDMSESSION': 'pop', 'LC_TIME': 'en_US.UTF-8', 'CONDA_DEFAULT_ENV': 'swav', 'PAPERSIZE': 'letter', 'GTK_IM_MODULE': 'fcitx', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'XDG_CURRENT_DESKTOP': 'pop:GNOME', 'CONDA_PREFIX': '/home/fantasticapple/Tool/anaconda3/envs/swav', 'JOURNAL_STREAM': '8:36530', 'LC_PAPER': 'en_US.UTF-8', 'SESSION_MANAGER': 'local/pop-os:@/tmp/.ICE-unix/3036,unix/pop-os:/tmp/.ICE-unix/3036', 'USERNAME': 'fantasticapple', 'LOGNAME': 'fantasticapple', 'PWD': '/home/fantasticapple/Github/styleestimation-master', 'MANAGERPID': '2729', 'IM_CONFIG_PHASE': '1', 'PYCHARM_HOSTED': '1', 'LANGUAGE': 'en_US:en', 'GJS_DEBUG_TOPICS': 'JS ERROR;JS LOG', 'PYTHONPATH': '/home/fantasticapple/Github/styleestimation-master:/home/fantasticapple/.local/share/JetBrains/Toolbox/apps/PyCharm-P/ch-0/213.7172.26/plugins/python/helpers/pycharm_matplotlib_backend:/home/fantasticapple/.local/share/JetBrains/Toolbox/apps/PyCharm-P/ch-0/213.7172.26/plugins/python/helpers/pycharm_display', 'SHELL': '/bin/bash', 'LC_ADDRESS': 'en_US.UTF-8', 'GIO_LAUNCHED_DESKTOP_FILE': '/home/fantasticapple/.local/share/applications/jetbrains-pycharm.desktop', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'GTK_MODULES': 'gail:atk-bridge:appmenu-gtk-module', 'DOTNET_ROOT': '/usr/lib/dotnet/dotnet6-6.0.108', 'CLUTTER_IM_MODULE': 'fcitx', 'CONDA_PROMPT_MODIFIER': '(swav) ', 'DOTNET_BUNDLE_EXTRACT_BASE_DIR': '/home/fantasticapple/.cache/dotnet_bundle_extract', 'SYSTEMD_EXEC_PID': '3059', 'XDG_SESSION_DESKTOP': 'pop', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SHLVL': '0', 'LC_IDENTIFICATION': 'en_US.UTF-8', 'LC_MONETARY': 'en_US.UTF-8', 'QT_IM_MODULE': 'fcitx', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-pop:/etc/xdg', 'LANG': 'en_US.UTF-8', 'XDG_SESSION_TYPE': 'x11', 'DISPLAY': ':1', 'LC_NAME': 'en_US.UTF-8', 'CONDA_SHLVL': '1', 'PYCHARM_DISPLAY_PORT': '63342', 'XDG_SESSION_CLASS': 'user', '_': '/usr/bin/dbus-update-activation-environment', 'PYTHONIOENCODING': 'UTF-8', 'GPG_AGENT_INFO': '/run/user/1000/gnupg/S.gpg-agent:0:1', 'DESKTOP_SESSION': 'pop', 'USER': 'fantasticapple', 'XDG_MENU_PREFIX': 'gnome-', 'GIO_LAUNCHED_DESKTOP_FILE_PID': '4395', 'QT_ACCESSIBILITY': '1', 'WINDOWPATH': '2', 'LC_NUMERIC': 'en_US.UTF-8', 'GJS_DEBUG_OUTPUT': 'stderr', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'PYTHONUNBUFFERED': '1', 'GNOME_SHELL_SESSION_MODE': 'pop', 'XDG_RUNTIME_DIR': '/run/user/1000', 'HOME': '/home/fantasticapple', 'MASTER_ADDR': '127.0.0.1', 'MASTER_PORT': '29500', 'WORLD_SIZE': '1', 'RANK': '0', 'LOCAL_RANK': '0'})
